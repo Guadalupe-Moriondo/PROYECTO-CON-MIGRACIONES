@@ -1,0 +1,146 @@
+import {Injectable,NotFoundException,ForbiddenException,BadRequestException,} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Review } from './entities/review.entity';
+import { Restaurant } from '../restaurants/entities/restaurant.entity';
+import { Order } from '../orders/entities/order.entity';
+import { CreateReviewDto} from './dto/create-review.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import { OrderStatus } from '../shared/enums/order-status.enum';
+
+@Injectable()
+export class ReviewsService {
+  constructor(
+    @InjectRepository(Review)
+    private readonly reviewRepo: Repository<Review>,
+
+    @InjectRepository(Restaurant)
+    private readonly restaurantRepo: Repository<Restaurant>,
+
+    @InjectRepository(Order)
+    private readonly orderRepo: Repository<Order>,
+  ) {}
+
+  async create(dto: CreateReviewDto, userId: number) {
+    // Verificar que el pedido existe y fue entregado al usuario
+    const order = await this.orderRepo.findOne({
+      where: { id: dto.orderId },
+      relations: ['user'],
+    });
+    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (order.user.id !== userId)
+      throw new ForbiddenException('Este pedido no te pertenece');
+    if (order.status !== OrderStatus.DELIVERED)
+      throw new BadRequestException('Solo podés reseñar pedidos entregados');
+
+    // Verificar que no haya reseñado este pedido+restaurante antes
+    const existing = await this.reviewRepo.findOne({
+      where: {
+        order: { id: dto.orderId },
+        restaurant: { id: dto.restaurantId },
+        user: { id: userId },
+      },
+    });
+    if (existing)
+      throw new BadRequestException('Ya reseñaste este pedido');
+
+    const restaurant = await this.restaurantRepo.findOne({
+      where: { id: dto.restaurantId },
+    });
+    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+
+    const review = this.reviewRepo.create({
+      rating: dto.rating,
+      comment: dto.comment,
+      user: { id: userId } as any,
+      restaurant,
+      order: { id: dto.orderId } as any,
+      product: dto.productId ? ({ id: dto.productId } as any) : null,
+    });
+
+    const saved = await this.reviewRepo.save(review);
+
+    // Recalcular rating promedio del restaurante
+    await this.updateRestaurantRating(dto.restaurantId);
+
+    return saved;
+  }
+
+  async findByRestaurant(restaurantId: number) {
+    return this.reviewRepo.find({
+      where: { restaurant: { id: restaurantId }, isModerated: false },
+      relations: ['user'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findAll() {
+    return this.reviewRepo.find({
+      relations: ['user', 'restaurant'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async update(id: number, dto: UpdateReviewDto, userId: number) {
+    const review = await this.reviewRepo.findOne({
+      where: { id },
+      relations: ['user', 'restaurant'],
+    });
+    if (!review) throw new NotFoundException('Reseña no encontrada');
+    if (review.user.id !== userId)
+      throw new ForbiddenException('No podés editar esta reseña');
+
+    Object.assign(review, dto);
+    const saved = await this.reviewRepo.save(review);
+    await this.updateRestaurantRating(review.restaurant.id);
+    return saved;
+  }
+
+  async remove(id: number, userId: number) {
+    const review = await this.reviewRepo.findOne({
+      where: { id },
+      relations: ['user', 'restaurant'],
+    });
+    if (!review) throw new NotFoundException('Reseña no encontrada');
+    if (review.user.id !== userId)
+      throw new ForbiddenException('No podés eliminar esta reseña');
+
+    const restaurantId = review.restaurant.id;
+    await this.reviewRepo.remove(review);
+    await this.updateRestaurantRating(restaurantId);
+    return { message: 'Reseña eliminada' };
+  }
+
+  /** Admin modera (oculta) una reseña */
+  async moderate(id: number) {
+    const review = await this.reviewRepo.findOne({ where: { id } });
+    if (!review) throw new NotFoundException('Reseña no encontrada');
+    review.isModerated = true;
+    return this.reviewRepo.save(review);
+  }
+
+  /** Admin restaura una reseña moderada */
+  async restore(id: number) {
+    const review = await this.reviewRepo.findOne({ where: { id } });
+    if (!review) throw new NotFoundException('Reseña no encontrada');
+    review.isModerated = false;
+    return this.reviewRepo.save(review);
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  private async updateRestaurantRating(restaurantId: number) {
+    const result = await this.reviewRepo
+      .createQueryBuilder('r')
+      .select('AVG(r.rating)', 'avg')
+      .addSelect('COUNT(r.id)', 'count')
+      .where('r.restaurant_id = :restaurantId', { restaurantId })
+      .andWhere('r.isModerated = false')
+      .getRawOne();
+
+    await this.restaurantRepo.update(restaurantId, {
+      rating: parseFloat(result.avg) || 0,
+      reviewCount: parseInt(result.count) || 0,
+    });
+  }
+}
