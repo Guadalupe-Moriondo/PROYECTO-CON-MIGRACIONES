@@ -31,13 +31,13 @@ export class UsersService {
       where: { id },
       select: ['id', 'name', 'email', 'role', 'isActive', 'createdAt'],
     });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
   async updateMe(userId: number, dto: UpdateUserDto) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
 
     if (dto.password) {
       dto.password = await bcrypt.hash(dto.password, 10);
@@ -49,11 +49,11 @@ export class UsersService {
 
   async updateRole(id: number, role: UserRole, requestingUser: { id: number; role: UserRole }) {
     if (requestingUser.role !== UserRole.ADMIN) {
-      throw new ForbiddenException('Solo el admin puede cambiar roles');
+      throw new ForbiddenException('Only the admin can change roles');
     }
 
     const user = await this.userRepo.findOne({ where: { id } });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
 
     user.role = role;
     return this.userRepo.save(user);
@@ -61,7 +61,7 @@ export class UsersService {
 
   async deactivate(id: number) {
     const user = await this.userRepo.findOne({ where: { id } });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
     user.isActive = false;
     return this.userRepo.save(user);
   }
@@ -73,7 +73,7 @@ export class UsersService {
       where: { id: userId },
       relations: ['favoriteRestaurants'],
     });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
     return user.favoriteRestaurants;
   }
 
@@ -82,17 +82,17 @@ export class UsersService {
       where: { id: userId },
       relations: ['favoriteRestaurants'],
     });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
 
     const restaurant = await this.restaurantRepo.findOne({ where: { id: restaurantId } });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
 
     const already = user.favoriteRestaurants.some((r) => r.id === restaurantId);
-    if (already) throw new BadRequestException('Ya está en favoritos');
+    if (already) throw new BadRequestException('Its already in favorites');
 
     user.favoriteRestaurants.push(restaurant);
     await this.userRepo.save(user);
-    return { message: 'Agregado a favoritos' };
+    return { message: 'Added to favorites' };
   }
 
   async removeFavorite(userId: number, restaurantId: number) {
@@ -100,13 +100,13 @@ export class UsersService {
       where: { id: userId },
       relations: ['favoriteRestaurants'],
     });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
 
     user.favoriteRestaurants = user.favoriteRestaurants.filter(
       (r) => r.id !== restaurantId,
     );
     await this.userRepo.save(user);
-    return { message: 'Eliminado de favoritos' };
+    return { message: 'Removed from favorites' };
   }
 
   // ── Historial de pedidos ───────────────────────────────────────────────────
@@ -116,7 +116,7 @@ export class UsersService {
       where: { id: userId },
       relations: ['orders', 'orders.restaurant', 'orders.items', 'orders.items.product'],
     });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
     return user.orders;
   }
 }

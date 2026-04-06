@@ -27,11 +27,11 @@ export class ReviewsService {
       where: { id: dto.orderId },
       relations: ['user'],
     });
-    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (!order) throw new NotFoundException('Order not found');
     if (order.user.id !== userId)
-      throw new ForbiddenException('Este pedido no te pertenece');
+      throw new ForbiddenException('This order does not belong to you.');
     if (order.status !== OrderStatus.DELIVERED)
-      throw new BadRequestException('Solo podés reseñar pedidos entregados');
+      throw new BadRequestException('You can only review delivered orders');
 
     // Verificar que no haya reseñado este pedido+restaurante antes
     const existing = await this.reviewRepo.findOne({
@@ -42,12 +42,12 @@ export class ReviewsService {
       },
     });
     if (existing)
-      throw new BadRequestException('Ya reseñaste este pedido');
+      throw new BadRequestException('You already reviewed this order');
 
     const restaurant = await this.restaurantRepo.findOne({
       where: { id: dto.restaurantId },
     });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
 
     const review = this.reviewRepo.create({
       rating: dto.rating,
@@ -86,9 +86,9 @@ export class ReviewsService {
       where: { id },
       relations: ['user', 'restaurant'],
     });
-    if (!review) throw new NotFoundException('Reseña no encontrada');
+    if (!review) throw new NotFoundException('Review not found');
     if (review.user.id !== userId)
-      throw new ForbiddenException('No podés editar esta reseña');
+      throw new ForbiddenException('You cannot edit this review');
 
     Object.assign(review, dto);
     const saved = await this.reviewRepo.save(review);
@@ -101,20 +101,20 @@ export class ReviewsService {
       where: { id },
       relations: ['user', 'restaurant'],
     });
-    if (!review) throw new NotFoundException('Reseña no encontrada');
+    if (!review) throw new NotFoundException('Review not found');
     if (review.user.id !== userId)
-      throw new ForbiddenException('No podés eliminar esta reseña');
+      throw new ForbiddenException('You cannot delete this review');
 
     const restaurantId = review.restaurant.id;
     await this.reviewRepo.remove(review);
     await this.updateRestaurantRating(restaurantId);
-    return { message: 'Reseña eliminada' };
+    return { message: 'Removed review' };
   }
 
   /** Admin modera (oculta) una reseña */
   async moderate(id: number) {
     const review = await this.reviewRepo.findOne({ where: { id } });
-    if (!review) throw new NotFoundException('Reseña no encontrada');
+    if (!review) throw new NotFoundException('Review not found');
     review.isModerated = true;
     return this.reviewRepo.save(review);
   }
@@ -122,7 +122,7 @@ export class ReviewsService {
   /** Admin restaura una reseña moderada */
   async restore(id: number) {
     const review = await this.reviewRepo.findOne({ where: { id } });
-    if (!review) throw new NotFoundException('Reseña no encontrada');
+    if (!review) throw new NotFoundException('Review not found');
     review.isModerated = false;
     return this.reviewRepo.save(review);
   }

@@ -31,12 +31,12 @@ export class VendorService {
   /** Admin da de alta a un vendor */
   async create(dto: CreateVendorDto) {
     const user = await this.userRepo.findOne({ where: { id: dto.userId } });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
 
     const existing = await this.vendorRepo.findOne({
       where: { user: { id: dto.userId } },
     });
-    if (existing) throw new ConflictException('Este usuario ya tiene perfil de vendor');
+    if (existing) throw new ConflictException('This user already has a vendor profile.');
 
     const vendor = this.vendorRepo.create({
       user,
@@ -63,7 +63,7 @@ export class VendorService {
       where: { id },
       relations: ['user', 'restaurants'],
     });
-    if (!vendor) throw new NotFoundException('Vendor no encontrado');
+    if (!vendor) throw new NotFoundException('Vendor not found');
     return vendor;
   }
 
@@ -72,7 +72,7 @@ export class VendorService {
       where: { user: { id: userId } },
       relations: ['user', 'restaurants'],
     });
-    if (!vendor) throw new NotFoundException('Perfil de vendor no encontrado');
+    if (!vendor) throw new NotFoundException('Vendor profile not found');
     return vendor;
   }
 

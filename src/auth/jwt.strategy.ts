@@ -27,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Token inválido o usuario desactivado');
+      throw new UnauthorizedException('Invalid token or deactivated user');
     }
 
     return user; // se adjunta a request.user

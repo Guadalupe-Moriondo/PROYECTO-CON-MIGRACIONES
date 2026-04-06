@@ -58,15 +58,15 @@ export class OrdersService {
       where: { id: dto.restaurantId, isActive: true },
       relations: ['vendor'],
     });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
 
     const address = await this.addressRepo.findOne({
       where: { id: dto.addressId },
       relations: ['user'],
     });
-    if (!address) throw new NotFoundException('Dirección no encontrada');
+    if (!address) throw new NotFoundException('Address not found');
     if (address.user.id !== userId)
-      throw new ForbiddenException('Esa dirección no te pertenece');
+      throw new ForbiddenException('That address doesnt belong to you');
 
     const order = this.orderRepo.create({
       status: OrderStatus.CART,
@@ -91,12 +91,12 @@ export class OrdersService {
   async addItem(orderId: number, dto: AddOrderItemDto, userId: number) {
     const order = await this.getOrderOrFail(orderId);
     this.assertOwner(order, userId);
-    this.assertStatus(order, OrderStatus.CART, 'agregar items');
+    this.assertStatus(order, OrderStatus.CART, 'add items');
 
     const product = await this.productRepo.findOne({
       where: { id: dto.productId, isActive: true },
     });
-    if (!product) throw new NotFoundException('Producto no disponible');
+    if (!product) throw new NotFoundException('Product not found');
 
     // Si ya existe el item, incrementa cantidad
     const existing = await this.itemRepo.findOne({
@@ -128,12 +128,12 @@ export class OrdersService {
   ) {
     const order = await this.getOrderOrFail(orderId);
     this.assertOwner(order, userId);
-    this.assertStatus(order, OrderStatus.CART, 'modificar items');
+    this.assertStatus(order, OrderStatus.CART, 'modify items');
 
     const item = await this.itemRepo.findOne({
       where: { id: itemId, order: { id: orderId } },
     });
-    if (!item) throw new NotFoundException('Item no encontrado');
+    if (!item) throw new NotFoundException('Item not found');
 
     item.quantity = dto.quantity;
     await this.itemRepo.save(item);
@@ -144,12 +144,12 @@ export class OrdersService {
   async removeItem(orderId: number, itemId: number, userId: number) {
     const order = await this.getOrderOrFail(orderId);
     this.assertOwner(order, userId);
-    this.assertStatus(order, OrderStatus.CART, 'eliminar items');
+    this.assertStatus(order, OrderStatus.CART, 'remove items');
 
     const item = await this.itemRepo.findOne({
       where: { id: itemId, order: { id: orderId } },
     });
-    if (!item) throw new NotFoundException('Item no encontrado');
+    if (!item) throw new NotFoundException('Item not found');
 
     await this.itemRepo.remove(item);
     await this.recalcTotal(orderId);
@@ -161,10 +161,10 @@ export class OrdersService {
   async confirm(orderId: number, userId: number) {
     const order = await this.getOrderOrFail(orderId);
     this.assertOwner(order, userId);
-    this.assertStatus(order, OrderStatus.CART, 'confirmar');
+    this.assertStatus(order, OrderStatus.CART, 'confirm');
 
     if (!order.items || order.items.length === 0)
-      throw new BadRequestException('El carrito está vacío');
+      throw new BadRequestException('The cart is empty');
 
     order.status = OrderStatus.CONFIRMED;
     const saved = await this.orderRepo.save(order);
@@ -185,7 +185,7 @@ export class OrdersService {
       where: { user: { id: userId } },
     });
     if (!vendor || order.vendor?.id !== vendor.id)
-      throw new ForbiddenException('Este pedido no es de tu comercio');
+      throw new ForbiddenException('This order is not from your business.');
 
     const allowed: Partial<Record<OrderStatus, OrderStatus[]>> = {
       [OrderStatus.PAID]:     [OrderStatus.ACCEPTED],
@@ -195,7 +195,7 @@ export class OrdersService {
 
     if (!allowed[order.status]?.includes(dto.status)) {
       throw new BadRequestException(
-        `No podés cambiar de ${order.status} a ${dto.status}`,
+        `You cannot change from ${order.status} to ${dto.status}`,
       );
     }
 
@@ -211,14 +211,14 @@ export class OrdersService {
     const order = await this.getOrderOrFail(orderId);
 
     if (order.status !== OrderStatus.READY)
-      throw new BadRequestException('El pedido debe estar READY para asignar driver');
+      throw new BadRequestException('The order must be READY to assign a driver');
     if (order.driver)
-      throw new BadRequestException('El pedido ya tiene driver asignado');
+      throw new BadRequestException('The order already has an assigned driver.');
 
     const driver = await this.driverRepo.findOne({
       where: { id: dto.driverId, isAvailable: true, isActive: true },
     });
-    if (!driver) throw new NotFoundException('Driver no disponible');
+    if (!driver) throw new NotFoundException('Driver not found');
 
     order.driver = driver;
     order.status = OrderStatus.ON_THE_WAY;
@@ -227,19 +227,23 @@ export class OrdersService {
     return saved;
   }
 
+  
+
+  
+
   // ── Cancelar ───────────────────────────────────────────────────────────────
 
   async cancel(orderId: number, user: { id: number; role: UserRole }) {
     const order = await this.getOrderOrFail(orderId);
 
     if (user.role === UserRole.DRIVER)
-      throw new ForbiddenException('El driver no puede cancelar pedidos');
+      throw new ForbiddenException('The driver cannot cancel orders');
 
     if (user.role === UserRole.USER) {
       this.assertOwner(order, user.id);
       const cancellable = [OrderStatus.CART, OrderStatus.CONFIRMED];
       if (!cancellable.includes(order.status))
-        throw new BadRequestException('No podés cancelar el pedido en este estado');
+        throw new BadRequestException('You cannot cancel the order in this state');
     }
 
     if (user.role === UserRole.VENDOR) {
@@ -247,10 +251,10 @@ export class OrdersService {
         where: { user: { id: user.id } },
       });
       if (!vendor || order.vendor?.id !== vendor.id)
-        throw new ForbiddenException('Este pedido no es de tu comercio');
+        throw new ForbiddenException('This order is not from your business.');
       const cancellable = [OrderStatus.CONFIRMED, OrderStatus.ACCEPTED];
       if (!cancellable.includes(order.status))
-        throw new BadRequestException('No podés cancelar el pedido en este estado');
+        throw new BadRequestException('You cannot cancel the order in this state');
     }
 
     order.status = OrderStatus.CANCELLED;
@@ -319,7 +323,7 @@ export class OrdersService {
         'payments',
       ],
     });
-    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
@@ -328,7 +332,7 @@ export class OrdersService {
       where: { id: orderId },
       relations: ['statusHistory', 'statusHistory.changedBy'],
     });
-    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (!order) throw new NotFoundException('Order not found');
     return order.statusHistory;
   }
 
@@ -339,19 +343,19 @@ export class OrdersService {
       where: { id },
       relations: ['user', 'vendor', 'driver', 'items', 'items.product'],
     });
-    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
   private assertOwner(order: Order, userId: number) {
     if (order.user?.id !== userId)
-      throw new ForbiddenException('Este pedido no te pertenece');
+      throw new ForbiddenException('This order does not belong to you.');
   }
 
   private assertStatus(order: Order, expected: OrderStatus, action: string) {
     if (order.status !== expected)
       throw new BadRequestException(
-        `Solo podés ${action} cuando el pedido está en estado ${expected}. Estado actual: ${order.status}`,
+        `You can only use ${action} when the order is in the ${expected} state. Current state: ${order.status}`,
       );
   }
 

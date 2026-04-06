@@ -53,6 +53,8 @@ export class OrdersController {
     return this.ordersService.getStatusHistory(id);
   }
 
+  
+
   // ── Items del carrito ──────────────────────────────────────────────────────
 
   /** POST /orders/:id/items */
@@ -112,14 +114,5 @@ export class OrdersController {
     return this.ordersService.updateVendorStatus(id, dto, user.id);
   }
 
-  /** POST /orders/:id/assign-driver — ADMIN asigna driver */
-  @Post(':id/assign-driver')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
-  assignDriver(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: AssignDriverDto,
-  ) {
-    return this.ordersService.assignDriver(id, dto);
-  }
+ 
 }

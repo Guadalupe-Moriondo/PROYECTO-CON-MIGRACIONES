@@ -44,9 +44,9 @@ export class AddressesService {
       where: { id },
       relations: ['user'],
     });
-    if (!address) throw new NotFoundException('Dirección no encontrada');
+    if (!address) throw new NotFoundException('Address not found');
     if (address.user.id !== userId)
-      throw new ForbiddenException('No tenés acceso a esta dirección');
+      throw new ForbiddenException('You do not have access to this address');
     return address;
   }
 
@@ -67,6 +67,6 @@ export class AddressesService {
   async remove(id: number, userId: number) {
     const address = await this.findOne(id, userId);
     await this.addressRepo.remove(address);
-    return { message: 'Dirección eliminada' };
+    return { message: 'Address removed' };
   }
 }

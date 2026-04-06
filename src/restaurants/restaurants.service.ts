@@ -20,7 +20,7 @@ export class RestaurantsService {
     const vendor = await this.vendorRepo.findOne({
       where: { user: { id: userId }, isActive: true },
     });
-    if (!vendor) throw new NotFoundException('Perfil de vendor no encontrado');
+    if (!vendor) throw new NotFoundException('Vendor profile not found');
 
     const restaurant = this.restaurantRepo.create({ ...dto, vendor });
     return this.restaurantRepo.save(restaurant);
@@ -51,7 +51,7 @@ export class RestaurantsService {
       where: { id },
       relations: ['products', 'vendor', 'vendor.user'],
     });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
     return restaurant;
   }
 
@@ -60,10 +60,10 @@ export class RestaurantsService {
       where: { id },
       relations: ['vendor', 'vendor.user'],
     });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
 
     if (restaurant.vendor.user.id !== userId) {
-      throw new ForbiddenException('No tenés permiso para modificar este restaurante');
+      throw new ForbiddenException('You do not have permission to modify this restaurant');
     }
 
     Object.assign(restaurant, dto);
@@ -75,20 +75,20 @@ export class RestaurantsService {
       where: { id },
       relations: ['vendor', 'vendor.user'],
     });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
 
     if (restaurant.vendor.user.id !== userId) {
-      throw new ForbiddenException('No tenés permiso para eliminar este restaurante');
+      throw new ForbiddenException('You do not have permission to delete this restaurant');
     }
 
     await this.restaurantRepo.remove(restaurant);
-    return { message: 'Restaurante eliminado' };
+    return { message: 'Removed restaurant' };
   }
 
   /** Admin puede desactivar cualquier restaurante */
   async adminRemove(id: number) {
     const restaurant = await this.restaurantRepo.findOne({ where: { id } });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
     restaurant.isActive = false;
     return this.restaurantRepo.save(restaurant);
   }

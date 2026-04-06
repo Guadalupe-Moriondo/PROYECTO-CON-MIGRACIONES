@@ -23,7 +23,7 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const exists = await this.userRepo.findOne({ where: { email: dto.email } });
     if (exists) {
-      throw new ConflictException('El email ya está registrado');
+      throw new ConflictException('The email is already registered');
     }
 
     const hashed = await bcrypt.hash(dto.password, 10);
@@ -45,12 +45,12 @@ export class AuthService {
     });
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return this.buildTokenResponse(user);
@@ -70,7 +70,7 @@ export class AuthService {
       password: hashed,
       role: UserRole.ADMIN,
     });
-    console.log('✅ Admin por defecto creado: admin@comidapp.com / admin123');
+    console.log('Default admin account: admin@comidapp.com / admin123');
   }
 
   private buildTokenResponse(user: User) {

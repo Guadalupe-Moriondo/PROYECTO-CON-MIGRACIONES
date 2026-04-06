@@ -33,21 +33,21 @@ export class PaymentsService {
       relations: ['user', 'payments'],
     });
 
-    if (!order) throw new NotFoundException('Pedido no encontrado');
+    if (!order) throw new NotFoundException('Order not found');
 
     if (order.user.id !== userId)
-      throw new ForbiddenException('Este pedido no te pertenece');
+      throw new ForbiddenException('This order does not belong to you.');
 
     if (order.status !== OrderStatus.CONFIRMED)
       throw new BadRequestException(
-        `El pedido debe estar CONFIRMADO para pagar. Estado actual: ${order.status}`,
+        `The order must be CONFIRMED before payment can be made. Current status: ${order.status}`,
       );
 
     const existingCompleted = order.payments?.find(
       (p) => p.status === PaymentStatus.COMPLETED,
     );
     if (existingCompleted)
-      throw new BadRequestException('Este pedido ya fue pagado');
+      throw new BadRequestException('This order has already been paid for.');
 
     // Registrar el pago
     const payment = this.paymentRepo.create({
@@ -64,7 +64,7 @@ export class PaymentsService {
     await this.orderRepo.save(order);
 
     return {
-      message: 'Pago procesado correctamente',
+      message: 'Payment processed correctly',
       payment: {
         id: payment.id,
         amount: payment.amount,
@@ -91,7 +91,7 @@ export class PaymentsService {
       where: { id },
       relations: ['order'],
     });
-    if (!payment) throw new NotFoundException('Pago no encontrado');
+    if (!payment) throw new NotFoundException('Payment not found');
     return payment;
   }
 

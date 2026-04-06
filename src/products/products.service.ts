@@ -25,10 +25,10 @@ export class ProductsService {
       where: { id: restaurantId },
       relations: ['vendor', 'vendor.user'],
     });
-    if (!restaurant) throw new NotFoundException('Restaurante no encontrado');
+    if (!restaurant) throw new NotFoundException('Restaurant not found');
 
     if (restaurant.vendor.user.id !== userId) {
-      throw new ForbiddenException('No tenés permiso sobre este restaurante');
+      throw new ForbiddenException('You do not have permission for this restaurant');
     }
 
     const product = this.productRepo.create({ ...dto, restaurant });
@@ -47,7 +47,7 @@ export class ProductsService {
       where: { id },
       relations: ['restaurant'],
     });
-    if (!product) throw new NotFoundException('Producto no encontrado');
+    if (!product) throw new NotFoundException('Product not found');
     return product;
   }
 
@@ -56,10 +56,10 @@ export class ProductsService {
       where: { id },
       relations: ['restaurant', 'restaurant.vendor', 'restaurant.vendor.user'],
     });
-    if (!product) throw new NotFoundException('Producto no encontrado');
+    if (!product) throw new NotFoundException('Product not found');
 
     if (product.restaurant.vendor.user.id !== userId) {
-      throw new ForbiddenException('No tenés permiso para modificar este producto');
+      throw new ForbiddenException('You do not have permission to modify this product');
     }
 
     Object.assign(product, dto);
@@ -71,13 +71,13 @@ export class ProductsService {
       where: { id },
       relations: ['restaurant', 'restaurant.vendor', 'restaurant.vendor.user'],
     });
-    if (!product) throw new NotFoundException('Producto no encontrado');
+    if (!product) throw new NotFoundException('Product not found');
 
     if (product.restaurant.vendor.user.id !== userId) {
-      throw new ForbiddenException('No tenés permiso para eliminar este producto');
+      throw new ForbiddenException('You do not have permission to delete this product');
     }
 
     await this.productRepo.remove(product);
-    return { message: 'Producto eliminado' };
+    return { message: 'Removed product' };
   }
 }

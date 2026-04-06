@@ -31,12 +31,12 @@ export class DriverService {
   /** Admin da de alta a un driver */
   async create(dto: CreateDriverDto) {
     const user = await this.userRepo.findOne({ where: { id: dto.userId } });
-    if (!user) throw new NotFoundException('Usuario no encontrado');
+    if (!user) throw new NotFoundException('User not found');
 
     const existing = await this.driverRepo.findOne({
       where: { user: { id: dto.userId } },
     });
-    if (existing) throw new ConflictException('Este usuario ya tiene perfil de driver');
+    if (existing) throw new ConflictException('This user already has a driver profile');
 
     const driver = this.driverRepo.create({
       user,
@@ -64,7 +64,7 @@ export class DriverService {
       where: { id },
       relations: ['user'],
     });
-    if (!driver) throw new NotFoundException('Driver no encontrado');
+    if (!driver) throw new NotFoundException('Driver not found');
     return driver;
   }
 
@@ -73,7 +73,7 @@ export class DriverService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
-    if (!driver) throw new NotFoundException('Perfil de driver no encontrado');
+    if (!driver) throw new NotFoundException('Driver profile not found');
     return driver;
   }
 
@@ -115,24 +115,24 @@ export class DriverService {
     const driver = await this.findByUserId(userId);
 
     if (!driver.isAvailable) {
-      throw new BadRequestException('Debes estar disponible para aceptar pedidos');
+      throw new BadRequestException('You must be available to accept orders');
     }
 
     const order = await this.orderRepo.findOne({
       where: { id: orderId },
       relations: ['driver'],
     });
-    if (!order) throw new NotFoundException('Pedido no encontrado');
-    if (order.driver) throw new BadRequestException('Este pedido ya fue asignado');
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.driver) throw new BadRequestException('This order has already been assigned');
     if (order.status !== OrderStatus.READY) {
-      throw new BadRequestException('El pedido no está listo para entrega');
+      throw new BadRequestException('The order is not ready for delivery');
     }
 
     order.driver = driver;
     order.status = OrderStatus.ON_THE_WAY;
     await this.orderRepo.save(order);
 
-    return { message: `Pedido #${orderId} aceptado`, orderId };
+    return { message: `Order #${orderId} accepted`, orderId };
   }
 
   /** El driver marca el pedido como entregado */
@@ -142,15 +142,15 @@ export class DriverService {
     const order = await this.orderRepo.findOne({
       where: { id: orderId, driver: { id: driver.id } },
     });
-    if (!order) throw new NotFoundException('Pedido no encontrado o no asignado a ti');
+    if (!order) throw new NotFoundException('Order not found or not assigned to you');
     if (order.status !== OrderStatus.ON_THE_WAY) {
-      throw new BadRequestException(`El pedido está en estado ${order.status}`);
+      throw new BadRequestException(`The order is in status ${order.status}`);
     }
 
     order.status = OrderStatus.DELIVERED;
     await this.orderRepo.save(order);
 
-    return { message: `Pedido #${orderId} entregado ✅` };
+    return { message: `Order #${orderId} delivered` };
   }
 
   async getMyOrders(userId: number) {
