@@ -14,7 +14,6 @@ import {CreateOrderDto,} from './dto/create-order.dto';
 import { AddOrderItemDto } from './dto/add-order-item.dto';
 import { UpdateItemQuantityDto } from './dto/update-item-quantity.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { AssignDriverDto } from './dto/assign-driver.dto';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../shared/guards/roles.guard';
 import { Roles } from '../shared/decorators/roles.decorator';
@@ -22,7 +21,7 @@ import { CurrentUser } from '../shared/decorators/current-user.decorator';
 import { UserRole } from '../shared/enums/user-role.enum';
 import { User } from '../users/entities/user.entity';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}

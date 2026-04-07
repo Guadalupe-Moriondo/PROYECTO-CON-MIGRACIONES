@@ -12,6 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from '../shared/enums/user-role.enum';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -20,6 +21,7 @@ export class UsersService {
 
     @InjectRepository(Restaurant)
     private readonly restaurantRepo: Repository<Restaurant>,
+
   ) {}
 
   findAll() {
@@ -37,14 +39,21 @@ export class UsersService {
 
   async updateMe(userId: number, dto: UpdateUserDto) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
+    
     if (!user) throw new NotFoundException('User not found');
-
     if (dto.password) {
       dto.password = await bcrypt.hash(dto.password, 10);
     }
 
-    Object.assign(user, dto);
-    return this.userRepo.save(user);
+    if (dto.name !== undefined) user.name = dto.name;
+    if (dto.email !== undefined) user.email = dto.email;
+    if (dto.password !== undefined) user.password = dto.password;
+    try {
+      const saved = await this.userRepo.save(user);
+      return saved;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async updateRole(id: number, role: UserRole, requestingUser: { id: number; role: UserRole }) {
@@ -59,12 +68,14 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  async deactivate(id: number) {
-    const user = await this.userRepo.findOne({ where: { id } });
-    if (!user) throw new NotFoundException('User not found');
-    user.isActive = false;
-    return this.userRepo.save(user);
-  }
+  async setActiveStatus(id: number, isActive: boolean) {
+  const user = await this.userRepo.findOne({ where: { id } });
+  if (!user) throw new NotFoundException('User not found');
+
+  user.isActive = isActive;
+
+  return this.userRepo.save(user);
+}
 
   // ── Favoritos ──────────────────────────────────────────────────────────────
 
@@ -119,4 +130,6 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     return user.orders;
   }
+
+  
 }

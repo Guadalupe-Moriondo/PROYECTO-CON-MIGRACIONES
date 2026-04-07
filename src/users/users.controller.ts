@@ -1,5 +1,6 @@
 import {
   Controller,
+  Post,
   Get,
   Patch,
   Delete,
@@ -17,6 +18,7 @@ import { CurrentUser } from '../shared/decorators/current-user.decorator';
 import { UserRole } from '../shared/enums/user-role.enum';
 import { User } from './entities/user.entity';
 
+
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
@@ -30,7 +32,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  /** GET /users/me — Usuario autenticado ve su propio perfil */
+  
   @Get('me')
   getMe(@CurrentUser() user: User) {
     return this.usersService.findOne(user.id);
@@ -69,6 +71,7 @@ export class UsersController {
   /** PATCH /users/me — Actualiza datos propios */
   @Patch('me')
   updateMe(@CurrentUser() user: User, @Body() dto: UpdateUserDto) {
+    console.log('Controller dto:', dto);
     return this.usersService.updateMe(user.id, dto);
   }
 
@@ -93,10 +96,15 @@ export class UsersController {
   }
 
   /** DELETE /users/:id — Solo ADMIN (desactiva, no borra) */
-  @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
-  deactivate(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.deactivate(id);
+  @Patch(':id/activate')
+  activate(@Param('id') id: number) {
+    return this.usersService.setActiveStatus(id, true);
   }
+
+  @Patch(':id/deactivate')
+  deactivate(@Param('id') id: number) {
+    return this.usersService.setActiveStatus(id, false);
+  }
+
+
 }

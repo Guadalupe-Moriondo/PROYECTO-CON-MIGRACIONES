@@ -51,7 +51,9 @@ export class User {
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 
-  @OneToMany(() => Address, (address) => address.user)
+  @OneToMany(() => Address, (address) => address.user, {
+  cascade: true,
+  })
   addresses: Address[];
 
   @OneToMany(() => Review, (review) => review.user)

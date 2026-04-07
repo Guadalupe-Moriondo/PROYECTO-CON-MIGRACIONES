@@ -18,7 +18,6 @@ import {CreateOrderDto,} from './dto/create-order.dto';
 import { AddOrderItemDto} from './dto/add-order-item.dto';
 import { UpdateItemQuantityDto } from './dto/update-item-quantity.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { AssignDriverDto } from './dto/assign-driver.dto';
 import { OrderStatus } from '../shared/enums/order-status.enum';
 import { UserRole } from '../shared/enums/user-role.enum';
 import { User } from '../users/entities/user.entity';
@@ -205,28 +204,6 @@ export class OrdersService {
     return saved;
   }
 
-  // ── Flujo ADMIN ────────────────────────────────────────────────────────────
-
-  async assignDriver(orderId: number, dto: AssignDriverDto) {
-    const order = await this.getOrderOrFail(orderId);
-
-    if (order.status !== OrderStatus.READY)
-      throw new BadRequestException('The order must be READY to assign a driver');
-    if (order.driver)
-      throw new BadRequestException('The order already has an assigned driver.');
-
-    const driver = await this.driverRepo.findOne({
-      where: { id: dto.driverId, isAvailable: true, isActive: true },
-    });
-    if (!driver) throw new NotFoundException('Driver not found');
-
-    order.driver = driver;
-    order.status = OrderStatus.ON_THE_WAY;
-    const saved = await this.orderRepo.save(order);
-    await this.recordHistory(saved, OrderStatus.ON_THE_WAY, driver.id, UserRole.DRIVER);
-    return saved;
-  }
-
   
 
   
@@ -268,7 +245,7 @@ export class OrdersService {
   async findAll(user: { id: number; role: UserRole }) {
     if (user.role === UserRole.ADMIN) {
       return this.orderRepo.find({
-        relations: ['user', 'restaurant', 'vendor', 'driver', 'items', 'items.product'],
+        relations: ['user', 'restaurant', 'driver', 'items', 'items.product'],
         order: { createdAt: 'DESC' },
       });
     }
@@ -314,10 +291,8 @@ export class OrdersService {
       relations: [
         'user',
         'restaurant',
-        'vendor',
         'driver',
         'driver.user',
-        'address',
         'items',
         'items.product',
         'payments',

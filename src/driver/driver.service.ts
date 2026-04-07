@@ -132,7 +132,7 @@ export class DriverService {
     order.status = OrderStatus.ON_THE_WAY;
     await this.orderRepo.save(order);
 
-    return { message: `Order #${orderId} accepted`, orderId };
+    return { message: `Order ${orderId} accepted`, orderId };
   }
 
   /** El driver marca el pedido como entregado */
@@ -150,7 +150,7 @@ export class DriverService {
     order.status = OrderStatus.DELIVERED;
     await this.orderRepo.save(order);
 
-    return { message: `Order #${orderId} delivered` };
+    return { message: `Order ${orderId} delivered` };
   }
 
   async getMyOrders(userId: number) {

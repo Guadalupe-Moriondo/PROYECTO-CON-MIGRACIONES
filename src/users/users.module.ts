@@ -5,6 +5,7 @@ import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
+
 @Module({
   imports: [TypeOrmModule.forFeature([User, Restaurant])],
   controllers: [UsersController],

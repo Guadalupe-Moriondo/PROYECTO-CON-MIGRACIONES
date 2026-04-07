@@ -43,6 +43,7 @@ export class VendorController {
   @Get('me')
   @Roles(UserRole.VENDOR)
   getMe(@CurrentUser() user: User) {
+    console.log('USER LOGUEADO:', user);
     return this.vendorService.findByUserId(user.id);
   }
 
