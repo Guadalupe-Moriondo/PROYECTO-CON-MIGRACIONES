@@ -123,7 +123,7 @@ export class DriverService {
     order.status = OrderStatus.ON_THE_WAY;
     await this.orderRepo.save(order);
 
-    return { message: `Order ${orderId} accepted`, orderId };
+    return;
   }
 
   async completeOrder(userId: number, orderId: number) {
@@ -140,7 +140,7 @@ export class DriverService {
     order.status = OrderStatus.DELIVERED;
     await this.orderRepo.save(order);
 
-    return { message: `Order ${orderId} delivered` };
+    return;
   }
 
   async getMyOrders(userId: number) {

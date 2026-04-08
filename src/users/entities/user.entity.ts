@@ -52,8 +52,7 @@ export class User {
   @ManyToMany(() => Restaurant)
   @JoinTable({ name: 'user_favorite_restaurants' })
   favoriteRestaurants: Restaurant[];
-
-  
+ 
   @OneToOne(() => Vendor, (vendor) => vendor.user)
   vendorProfile: Vendor;
 

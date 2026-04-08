@@ -55,7 +55,7 @@ export class UsersService {
     if (requestingUser.role !== UserRole.ADMIN) {
       throw new ForbiddenException('Only the admin can change roles');
     }
-
+    
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -97,7 +97,7 @@ export class UsersService {
 
     user.favoriteRestaurants.push(restaurant);
     await this.userRepo.save(user);
-    return { message: 'Added to favorites' };
+    return;
   }
 
   async removeFavorite(userId: number, restaurantId: number) {
@@ -111,7 +111,7 @@ export class UsersService {
       (r) => r.id !== restaurantId,
     );
     await this.userRepo.save(user);
-    return { message: 'Removed from favorites' };
+    return ;
   }
 
 

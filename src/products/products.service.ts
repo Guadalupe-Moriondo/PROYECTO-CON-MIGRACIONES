@@ -74,6 +74,6 @@ export class ProductsService {
     }
 
     await this.productRepo.remove(product);
-    return { message: 'Removed product' };
+    return;
   }
 }

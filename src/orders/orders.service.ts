@@ -145,7 +145,7 @@ export class OrdersService {
 
     await this.itemRepo.remove(item);
     await this.recalcTotal(orderId);
-    return { message: 'Item eliminado' };
+    return this.findOne(orderId);
   }
 
  
@@ -172,7 +172,6 @@ export class OrdersService {
     userId: number,
   ) {
     const order = await this.getOrderOrFail(orderId);
-
     const vendor = await this.vendorRepo.findOne({
       where: { user: { id: userId } },
     });
@@ -186,9 +185,7 @@ export class OrdersService {
     };
 
     if (!allowed[order.status]?.includes(dto.status)) {
-      throw new BadRequestException(
-        `You cannot change from ${order.status} to ${dto.status}`,
-      );
+      throw new BadRequestException(`You cannot change from ${order.status} to ${dto.status}`,);
     }
 
     order.status = dto.status;
@@ -318,9 +315,7 @@ export class OrdersService {
 
   private assertStatus(order: Order, expected: OrderStatus, action: string) {
     if (order.status !== expected)
-      throw new BadRequestException(
-        `You can only use ${action} when the order is in the ${expected} state. Current state: ${order.status}`,
-      );
+      throw new BadRequestException(`You can only use ${action} when the order is in the ${expected} state. Current state: ${order.status}`,);
   }
 
   private async recalcTotal(orderId: number) {

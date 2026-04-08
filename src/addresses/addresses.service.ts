@@ -62,6 +62,6 @@ export class AddressesService {
   async remove(id: number, userId: number) {
     const address = await this.findOne(id, userId);
     await this.addressRepo.remove(address);
-    return { message: 'Address removed' };
+    return;
   }
 }

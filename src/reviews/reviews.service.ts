@@ -104,7 +104,7 @@ export class ReviewsService {
     const restaurantId = review.restaurant.id;
     await this.reviewRepo.remove(review);
     await this.updateRestaurantRating(restaurantId);
-    return { message: 'Removed review' };
+    return;
   }
 
   async moderate(id: number) {

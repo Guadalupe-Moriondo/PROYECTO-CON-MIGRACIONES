@@ -82,7 +82,7 @@ export class RestaurantsService {
     }
 
     await this.restaurantRepo.remove(restaurant);
-    return { message: 'Removed restaurant' };
+    return;
   }
 
   

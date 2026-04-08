@@ -34,9 +34,7 @@ export class PaymentsService {
         `The order must be CONFIRMED before payment can be made. Current status: ${order.status}`,
       );
 
-    const existingCompleted = order.payments?.find(
-      (p) => p.status === PaymentStatus.COMPLETED,
-    );
+    const existingCompleted = order.payments?.find((p) => p.status === PaymentStatus.COMPLETED,);
     if (existingCompleted)
       throw new BadRequestException('This order has already been paid for.');
 
@@ -54,7 +52,6 @@ export class PaymentsService {
     await this.orderRepo.save(order);
 
     return {
-      message: 'Payment processed correctly',
       payment: {
         id: payment.id,
         amount: payment.amount,

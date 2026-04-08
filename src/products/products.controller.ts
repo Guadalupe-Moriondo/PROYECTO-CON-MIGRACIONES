@@ -12,7 +12,6 @@ import { User } from '../users/entities/user.entity';
 @Controller('restaurants/:restaurantId/products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
-
   
   @Get()
   findAll(@Param('restaurantId', ParseIntPipe) restaurantId: number) {
