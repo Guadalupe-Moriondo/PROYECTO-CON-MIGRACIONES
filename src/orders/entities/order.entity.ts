@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn,Column,ManyToOne,JoinColumn,OneToMany,CreateDateColumn,UpdateDateColumn,} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Driver } from '../../driver/entities/driver.entity';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
@@ -34,7 +25,7 @@ export class Order {
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   total: number;
 
-  /** Snapshot de la dirección al momento del pedido */
+ 
   @Column({ nullable: true })
   deliveryStreet: string;
 
@@ -59,7 +50,7 @@ export class Order {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  // ── Relaciones ──────────────────────────────────────────────────────────────
+ 
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
@@ -69,12 +60,12 @@ export class Order {
   @JoinColumn({ name: 'restaurant_id' })
   restaurant: Restaurant;
 
-  /** Referencia al Vendor (perfil de negocio del dueño del restaurante) */
+  
   @ManyToOne(() => Vendor, { nullable: true })
   @JoinColumn({ name: 'vendor_id' })
   vendor: Vendor;
 
-  /** Referencia al Driver (perfil del repartidor) */
+  
   @ManyToOne(() => Driver, (driver) => driver.orders, { nullable: true })
   @JoinColumn({ name: 'driver_id' })
   driver: Driver;

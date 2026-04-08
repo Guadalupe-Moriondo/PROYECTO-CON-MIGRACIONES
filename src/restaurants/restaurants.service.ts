@@ -85,7 +85,7 @@ export class RestaurantsService {
     return { message: 'Removed restaurant' };
   }
 
-  /** Admin puede desactivar cualquier restaurante */
+  
   async adminRemove(id: number) {
     const restaurant = await this.restaurantRepo.findOne({ where: { id } });
     if (!restaurant) throw new NotFoundException('Restaurant not found');

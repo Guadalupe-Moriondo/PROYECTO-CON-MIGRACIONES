@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn,Column,OneToOne,JoinColumn,OneToMany,CreateDateColumn,UpdateDateColumn,} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 
@@ -25,7 +16,6 @@ export class Vendor {
   @Column({ nullable: true })
   description: string;
 
-  /** Comisión que la plataforma cobra al vendor (porcentaje). Gestionado por Admin. */
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 10.0 })
   commissionRate: number;
 

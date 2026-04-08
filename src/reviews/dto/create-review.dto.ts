@@ -9,15 +9,12 @@ export class CreateReviewDto {
   @IsString()
   comment: string;
 
-  /** ID del restaurante a reseñar */
   @IsInt()
   restaurantId: number;
 
-  /** ID del pedido (para verificar que el user haya comprado) */
   @IsInt()
   orderId: number;
 
-  /** Opcional: reseñar también un producto específico */
   @IsOptional()
   @IsInt()
   productId?: number;

@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  CreateDateColumn,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn,Column,ManyToOne,JoinColumn,CreateDateColumn,} from 'typeorm';
 import { Order } from '../../orders/entities/order.entity';
 import { PaymentMethod, PaymentStatus } from '../../shared/enums/payment.enum';
 
@@ -31,7 +24,6 @@ export class Payment {
   })
   method: PaymentMethod;
 
-  /** Referencia externa de la pasarela de pago (opcional) */
   @Column({ nullable: true })
   externalRef: string;
 

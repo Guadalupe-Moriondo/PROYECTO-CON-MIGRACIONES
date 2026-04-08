@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
+import {Injectable,UnauthorizedException,ConflictException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -56,7 +52,7 @@ export class AuthService {
     return this.buildTokenResponse(user);
   }
 
-  /** Crea el admin por defecto si no existe (llamado en bootstrap) */
+
   async seedAdmin() {
     const exists = await this.userRepo.findOne({
       where: { role: UserRole.ADMIN },
@@ -70,7 +66,7 @@ export class AuthService {
       password: hashed,
       role: UserRole.ADMIN,
     });
-    console.log('Default admin account: admin@comidapp.com / admin123');
+    
   }
 
   private buildTokenResponse(user: User) {

@@ -22,7 +22,6 @@ export class ReviewsService {
   ) {}
 
   async create(dto: CreateReviewDto, userId: number) {
-    // Verificar que el pedido existe y fue entregado al usuario
     const order = await this.orderRepo.findOne({
       where: { id: dto.orderId },
       relations: ['user'],
@@ -33,7 +32,6 @@ export class ReviewsService {
     if (order.status !== OrderStatus.DELIVERED)
       throw new BadRequestException('You can only review delivered orders');
 
-    // Verificar que no haya reseñado este pedido+restaurante antes
     const existing = await this.reviewRepo.findOne({
       where: {
         order: { id: dto.orderId },
@@ -59,8 +57,6 @@ export class ReviewsService {
     });
 
     const saved = await this.reviewRepo.save(review);
-
-    // Recalcular rating promedio del restaurante
     await this.updateRestaurantRating(dto.restaurantId);
 
     return saved;
@@ -111,7 +107,6 @@ export class ReviewsService {
     return { message: 'Removed review' };
   }
 
-  /** Admin modera (oculta) una reseña */
   async moderate(id: number) {
     const review = await this.reviewRepo.findOne({ where: { id } });
     if (!review) throw new NotFoundException('Review not found');
@@ -119,7 +114,6 @@ export class ReviewsService {
     return this.reviewRepo.save(review);
   }
 
-  /** Admin restaura una reseña moderada */
   async restore(id: number) {
     const review = await this.reviewRepo.findOne({ where: { id } });
     if (!review) throw new NotFoundException('Review not found');
@@ -127,7 +121,7 @@ export class ReviewsService {
     return this.reviewRepo.save(review);
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  
 
   private async updateRestaurantRating(restaurantId: number) {
     const result = await this.reviewRepo

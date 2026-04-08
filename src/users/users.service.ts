@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  ForbiddenException,
-} from '@nestjs/common';
+import {Injectable,NotFoundException,BadRequestException,ForbiddenException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -39,7 +34,7 @@ export class UsersService {
 
   async updateMe(userId: number, dto: UpdateUserDto) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    
+
     if (!user) throw new NotFoundException('User not found');
     if (dto.password) {
       dto.password = await bcrypt.hash(dto.password, 10);
@@ -77,8 +72,7 @@ export class UsersService {
   return this.userRepo.save(user);
 }
 
-  // ── Favoritos ──────────────────────────────────────────────────────────────
-
+  
   async getFavorites(userId: number) {
     const user = await this.userRepo.findOne({
       where: { id: userId },
@@ -120,7 +114,6 @@ export class UsersService {
     return { message: 'Removed from favorites' };
   }
 
-  // ── Historial de pedidos ───────────────────────────────────────────────────
 
   async getOrderHistory(userId: number) {
     const user = await this.userRepo.findOne({

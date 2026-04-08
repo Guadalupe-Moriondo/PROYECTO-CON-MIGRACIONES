@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Body,
-  Param,
-  ParseIntPipe,
-  UseGuards,
-} from '@nestjs/common';
+import {Controller,Get,Post,Patch,Delete,Body,Param,ParseIntPipe,UseGuards,} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto} from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -23,19 +13,17 @@ import { User } from '../users/entities/user.entity';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  /** GET /restaurants/:restaurantId/products — Público */
+  
   @Get()
   findAll(@Param('restaurantId', ParseIntPipe) restaurantId: number) {
     return this.productsService.findByRestaurant(restaurantId);
   }
 
-  /** GET /restaurants/:restaurantId/products/:id — Público */
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
   }
 
-  /** POST /restaurants/:restaurantId/products — Solo VENDOR */
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.VENDOR)
@@ -47,7 +35,6 @@ export class ProductsController {
     return this.productsService.create(restaurantId, dto, user.id);
   }
 
-  /** PATCH /restaurants/:restaurantId/products/:id — Solo VENDOR dueño */
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.VENDOR)
@@ -59,7 +46,6 @@ export class ProductsController {
     return this.productsService.update(id, dto, user.id);
   }
 
-  /** DELETE /restaurants/:restaurantId/products/:id — Solo VENDOR dueño */
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.VENDOR)

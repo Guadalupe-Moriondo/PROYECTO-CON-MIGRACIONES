@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  ForbiddenException,
-} from '@nestjs/common';
+import {Injectable,NotFoundException,BadRequestException,ForbiddenException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
@@ -22,11 +17,7 @@ export class PaymentsService {
     private readonly orderRepo: Repository<Order>,
   ) {}
 
-  /**
-   * Procesa el pago de un pedido.
-   * El pedido debe estar en estado CONFIRMED.
-   * Tras el pago exitoso pasa a PAID y queda listo para que el vendor lo acepte.
-   */
+  
   async pay(dto: CreatePaymentDto, userId: number) {
     const order = await this.orderRepo.findOne({
       where: { id: dto.orderId },
@@ -49,7 +40,7 @@ export class PaymentsService {
     if (existingCompleted)
       throw new BadRequestException('This order has already been paid for.');
 
-    // Registrar el pago
+
     const payment = this.paymentRepo.create({
       order,
       amount: order.total,
@@ -59,7 +50,6 @@ export class PaymentsService {
     });
     await this.paymentRepo.save(payment);
 
-    // Avanzar estado de la orden
     order.status = OrderStatus.PAID;
     await this.orderRepo.save(order);
 
@@ -95,7 +85,7 @@ export class PaymentsService {
     return payment;
   }
 
-  /** Solo ADMIN */
+  
   async findAll() {
     return this.paymentRepo.find({
       relations: ['order', 'order.user'],

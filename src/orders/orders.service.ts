@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  ForbiddenException,
-} from '@nestjs/common';
+import {Injectable,NotFoundException,BadRequestException,ForbiddenException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
@@ -50,8 +45,6 @@ export class OrdersService {
     private readonly vendorRepo: Repository<Vendor>,
   ) {}
 
-  // ── Crear orden (carrito) ──────────────────────────────────────────────────
-
   async create(dto: CreateOrderDto, userId: number) {
     const restaurant = await this.restaurantRepo.findOne({
       where: { id: dto.restaurantId, isActive: true },
@@ -85,7 +78,7 @@ export class OrdersService {
     return saved;
   }
 
-  // ── Items del carrito ──────────────────────────────────────────────────────
+
 
   async addItem(orderId: number, dto: AddOrderItemDto, userId: number) {
     const order = await this.getOrderOrFail(orderId);
@@ -97,7 +90,7 @@ export class OrdersService {
     });
     if (!product) throw new NotFoundException('Product not found');
 
-    // Si ya existe el item, incrementa cantidad
+
     const existing = await this.itemRepo.findOne({
       where: { order: { id: orderId }, product: { id: product.id } },
     });
@@ -155,7 +148,7 @@ export class OrdersService {
     return { message: 'Item eliminado' };
   }
 
-  // ── Confirmar y pagar ──────────────────────────────────────────────────────
+ 
 
   async confirm(orderId: number, userId: number) {
     const order = await this.getOrderOrFail(orderId);
@@ -171,7 +164,7 @@ export class OrdersService {
     return saved;
   }
 
-  // ── Flujo VENDOR ───────────────────────────────────────────────────────────
+  
 
   async updateVendorStatus(
     orderId: number,
@@ -206,10 +199,6 @@ export class OrdersService {
 
   
 
-  
-
-  // ── Cancelar ───────────────────────────────────────────────────────────────
-
   async cancel(orderId: number, user: { id: number; role: UserRole }) {
     const order = await this.getOrderOrFail(orderId);
 
@@ -240,7 +229,7 @@ export class OrdersService {
     return saved;
   }
 
-  // ── Consultas ──────────────────────────────────────────────────────────────
+ 
 
   async findAll(user: { id: number; role: UserRole }) {
     if (user.role === UserRole.ADMIN) {
@@ -311,7 +300,7 @@ export class OrdersService {
     return order.statusHistory;
   }
 
-  // ── Helpers privados ───────────────────────────────────────────────────────
+
 
   private async getOrderOrFail(id: number) {
     const order = await this.orderRepo.findOne({

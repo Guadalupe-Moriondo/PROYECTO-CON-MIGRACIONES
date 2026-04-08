@@ -27,11 +27,9 @@ export class Restaurant {
   @Column({ nullable: true })
   imageUrl: string;
 
-  /** Horario de apertura, ej: "09:00" */
   @Column({ nullable: true })
   openTime: string;
 
-  /** Horario de cierre, ej: "22:00" */
   @Column({ nullable: true })
   closeTime: string;
 

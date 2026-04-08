@@ -1,14 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  ManyToMany,
-  JoinTable,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToOne,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn,Column,OneToMany,ManyToMany,JoinTable,CreateDateColumn,UpdateDateColumn,OneToOne,} from 'typeorm';
 import { UserRole } from '../../shared/enums/user-role.enum';
 import { Order } from '../../orders/entities/order.entity';
 import { Address } from '../../addresses/entities/address.entity';
@@ -47,7 +37,7 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  // Relaciones
+
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 
@@ -63,11 +53,10 @@ export class User {
   @JoinTable({ name: 'user_favorite_restaurants' })
   favoriteRestaurants: Restaurant[];
 
-  // Un usuario con rol VENDOR tiene un perfil Vendor
+  
   @OneToOne(() => Vendor, (vendor) => vendor.user)
   vendorProfile: Vendor;
 
-  // Un usuario con rol DRIVER tiene un perfil Driver
   @OneToOne(() => Driver, (driver) => driver.user)
   driverProfile: Driver;
 }

@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  CreateDateColumn,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn,Column,ManyToOne,JoinColumn,CreateDateColumn,} from 'typeorm';
 import { Order } from './order.entity';
 import { User } from '../../users/entities/user.entity';
 import { OrderStatus } from '../../shared/enums/order-status.enum';

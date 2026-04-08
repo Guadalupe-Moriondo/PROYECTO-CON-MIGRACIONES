@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import {Injectable,NotFoundException,ConflictException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vendor } from './entities/vendor.entity';
@@ -27,7 +23,7 @@ export class VendorService {
     private readonly orderRepo: Repository<Order>,
   ) {}
 
-  /** Admin da de alta a un vendor */
+  
   async create(dto: CreateVendorDto) {
     const user = await this.userRepo.findOne({ where: { id: dto.userId } });
     if (!user) throw new NotFoundException('User not found');
@@ -45,8 +41,6 @@ export class VendorService {
     });
 
     const saved = await this.vendorRepo.save(vendor);
-
-    // Actualizar rol del usuario a VENDOR
     user.role = UserRole.VENDOR;
     await this.userRepo.save(user);
 
@@ -81,7 +75,7 @@ export class VendorService {
     return this.vendorRepo.save(vendor);
   }
 
-  /** Solo ADMIN puede cambiar la comisión */
+  
   async updateCommission(id: number, dto: UpdateCommissionDto) {
     const vendor = await this.findOne(id);
     vendor.commissionRate = dto.commissionRate;
@@ -94,7 +88,6 @@ export class VendorService {
     return this.vendorRepo.save(vendor);
   }
 
-  // ── Pedidos del vendor ─────────────────────────────────────────────────────
 
   async getOrders(userId: number) {
     const vendor = await this.findByUserId(userId);
@@ -105,7 +98,7 @@ export class VendorService {
     });
   }
 
-  /** Reporte de ventas del vendor */
+  
   async getSalesReport(userId: number) {
     const vendor = await this.findByUserId(userId);
 

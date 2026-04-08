@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn,Column,OneToOne,JoinColumn,OneToMany,CreateDateColumn,UpdateDateColumn,} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Order } from '../../orders/entities/order.entity';
 
@@ -28,14 +19,12 @@ export class Driver {
   @Column({ nullable: true })
   documentNumber: string;
 
-  /** El driver puede activar/desactivar su disponibilidad */
   @Column({ default: false })
   isAvailable: boolean;
 
   @Column({ default: true })
   isActive: boolean;
 
-  /** Calificación promedio del driver */
   @Column({ type: 'float', default: 0 })
   rating: number;
 

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
+import {Injectable,NotFoundException,ConflictException,BadRequestException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Driver } from './entities/driver.entity';
@@ -28,7 +23,7 @@ export class DriverService {
     private readonly orderRepo: Repository<Order>,
   ) {}
 
-  /** Admin da de alta a un driver */
+  
   async create(dto: CreateDriverDto) {
     const user = await this.userRepo.findOne({ where: { id: dto.userId } });
     if (!user) throw new NotFoundException('User not found');
@@ -47,8 +42,6 @@ export class DriverService {
     });
 
     const saved = await this.driverRepo.save(driver);
-
-    // Actualizar rol del usuario a DRIVER
     user.role = UserRole.DRIVER;
     await this.userRepo.save(user);
 
@@ -95,7 +88,6 @@ export class DriverService {
     return this.driverRepo.save(driver);
   }
 
-  // ── Pedidos disponibles para tomar ────────────────────────────────────────
 
   async getAvailableOrders() {
     return this.orderRepo
@@ -110,7 +102,6 @@ export class DriverService {
       .getMany();
   }
 
-  /** El driver acepta un pedido disponible */
   async acceptOrder(userId: number, orderId: number) {
     const driver = await this.findByUserId(userId);
 
@@ -135,7 +126,6 @@ export class DriverService {
     return { message: `Order ${orderId} accepted`, orderId };
   }
 
-  /** El driver marca el pedido como entregado */
   async completeOrder(userId: number, orderId: number) {
     const driver = await this.findByUserId(userId);
 
@@ -162,7 +152,6 @@ export class DriverService {
     });
   }
 
-  /** Resumen de ganancias: 10% de cada entrega */
   async getEarnings(userId: number) {
     const driver = await this.findByUserId(userId);
 

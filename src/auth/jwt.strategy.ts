@@ -15,7 +15,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      // ✅ CORREGIDO: lee la variable de entorno en vez del string literal
       secretOrKey: configService.getOrThrow<string>('JWT_SECRET'),
     });
   }
@@ -30,6 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid token or deactivated user');
     }
 
-    return user; // se adjunta a request.user
+    return user; 
   }
 }

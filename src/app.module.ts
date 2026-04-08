@@ -12,17 +12,12 @@ import { PaymentsModule } from './payments/payments.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AddressesModule } from './addresses/addresses.module';
 
-
-
 @Module({
   imports: [
-    // ── Configuración global de variables de entorno ──────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
-
-    // ── Base de datos ──────────────────────────────────────────────────────
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -32,19 +27,11 @@ import { AddressesModule } from './addresses/addresses.module';
         username: config.getOrThrow<string>('DB_USER'),
         password: config.getOrThrow<string>('DB_PASSWORD'),
         database: config.getOrThrow<string>('DB_NAME'),
-
-        // Las entidades se cargan automáticamente desde los módulos
         autoLoadEntities: true,
-
-        // ✅ NUNCA synchronize: true en producción — usar migraciones
         synchronize: false,
-
-        // Las migraciones se ejecutan con: npm run migration:run
         migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-        migrationsRun: false, // ejecutar manualmente con el CLI
-
+        migrationsRun: false, 
         logging: config.get('NODE_ENV') === 'development',
-
         ssl:
           config.get('NODE_ENV') === 'production'
             ? { rejectUnauthorized: false }
@@ -52,7 +39,6 @@ import { AddressesModule } from './addresses/addresses.module';
       }),
     }),
 
-    // ── Módulos de la aplicación ───────────────────────────────────────────
     AuthModule,
     UsersModule,
     VendorModule,

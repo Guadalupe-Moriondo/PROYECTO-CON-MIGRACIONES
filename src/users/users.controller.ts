@@ -1,14 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Patch,
-  Delete,
-  Param,
-  Body,
-  ParseIntPipe,
-  UseGuards,
-} from '@nestjs/common';
+import {Controller,Get,Patch,Delete,Param,Body,ParseIntPipe,UseGuards,} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
@@ -24,7 +14,7 @@ import { User } from './entities/user.entity';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  /** GET /users  — Solo ADMIN */
+  
   @Get()
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -32,25 +22,21 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  
   @Get('me')
   getMe(@CurrentUser() user: User) {
     return this.usersService.findOne(user.id);
   }
 
-  /** GET /users/me/orders — Historial de pedidos del usuario */
   @Get('me/orders')
   getMyOrders(@CurrentUser() user: User) {
     return this.usersService.getOrderHistory(user.id);
   }
 
-  /** GET /users/me/favorites — Restaurantes favoritos */
   @Get('me/favorites')
   getFavorites(@CurrentUser() user: User) {
     return this.usersService.getFavorites(user.id);
   }
 
-  /** POST /users/me/favorites/:restaurantId */
   @Patch('me/favorites/:restaurantId')
   addFavorite(
     @CurrentUser() user: User,
@@ -59,7 +45,6 @@ export class UsersController {
     return this.usersService.addFavorite(user.id, restaurantId);
   }
 
-  /** DELETE /users/me/favorites/:restaurantId */
   @Delete('me/favorites/:restaurantId')
   removeFavorite(
     @CurrentUser() user: User,
@@ -68,14 +53,12 @@ export class UsersController {
     return this.usersService.removeFavorite(user.id, restaurantId);
   }
 
-  /** PATCH /users/me — Actualiza datos propios */
   @Patch('me')
   updateMe(@CurrentUser() user: User, @Body() dto: UpdateUserDto) {
     console.log('Controller dto:', dto);
     return this.usersService.updateMe(user.id, dto);
   }
 
-  /** GET /users/:id — Solo ADMIN */
   @Get(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -83,7 +66,6 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  /** PATCH /users/:id/role — Solo ADMIN */
   @Patch(':id/role')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
@@ -95,16 +77,17 @@ export class UsersController {
     return this.usersService.updateRole(id, role, requestingUser);
   }
 
-  /** DELETE /users/:id — Solo ADMIN (desactiva, no borra) */
   @Patch(':id/activate')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
   activate(@Param('id') id: number) {
     return this.usersService.setActiveStatus(id, true);
   }
 
   @Patch(':id/deactivate')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
   deactivate(@Param('id') id: number) {
     return this.usersService.setActiveStatus(id, false);
   }
-
-
 }

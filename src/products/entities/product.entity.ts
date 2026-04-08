@@ -1,13 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import {Entity,PrimaryGeneratedColumn,Column,ManyToOne,OneToMany,JoinColumn,CreateDateColumn,UpdateDateColumn,} from 'typeorm';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
 import { Review } from '../../reviews/entities/review.entity';
 import { OrderItem } from '../../orders/entities/order-item.entity';
@@ -29,7 +20,6 @@ export class Product {
   @Column({ nullable: true })
   imageUrl: string;
 
-  /** Categoría dentro del menú, ej: "Entradas", "Bebidas", "Postres" */
   @Column({ nullable: true })
   category: string;
 
